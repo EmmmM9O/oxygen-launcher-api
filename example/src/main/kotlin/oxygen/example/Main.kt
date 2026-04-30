@@ -66,8 +66,8 @@ fun main() {
 
         override fun onSurfaceDestroyed(): Unit {
           LauncherBridge.logLauncher("On Surface Destroy")
-          Vars.rendering = false
-          Vars.running = false
+          Vars.rendering = false 
+          Vars.taskQueue.offer { Vars.eglHelper.destroy() }
         }
       }
   )
@@ -99,8 +99,8 @@ fun main() {
       frameCount = 0
       lastTime = currentTime
     }
-  }
-  Vars.eglHelper.destroy()
+  } 
+  Vars.taskQueue.poll()?.run()
 }
 
 class DebugStream : Supplier<PrintStream> {
