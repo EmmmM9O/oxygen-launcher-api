@@ -18,4 +18,13 @@ interface LauncherBridgeCallback {
   fun onSurfaceChanged(width: Int, height: Int): Unit {}
 
   fun onSurfaceDestroyed(): Unit {}
+
+  fun handleTouch(/*MotionEvent*/ intData: IntArray, floatData: FloatArray): Boolean = true
+
+  fun handleGenericMotion(
+      /*MotionEvent*/ intData: IntArray,
+      floatData: FloatArray,
+  ): Boolean = true
+
+  fun handleKey(keyCode: Int, /*KeyEvent*/ intData: IntArray): Boolean = true
 }

@@ -61,18 +61,33 @@ fun main() {
 
         override fun onSurfaceChanged(width: Int, height: Int): Unit {
           LauncherBridge.logLauncher("On Surface Change ${width}x${height}")
-          Vars.taskQueue.offer { if (Vars.glInit) GLES20.glViewport(0, 0, width, height) }
+          Vars.taskQueue.offer {
+            if (Vars.glInit) {
+              GLES20.glViewport(0, 0, width, height)
+              LauncherBridge.getTextInput(
+                  "TextInput",
+                  "",
+                  "Test",
+                  false,
+                  true,
+                  -1,
+                  true,
+                  { str -> LauncherBridge.logLauncher("TextInput $str") },
+                  { LauncherBridge.logLauncher("On TextInput Cancel") },
+              )
+            }
+          }
         }
 
         override fun onSurfaceDestroyed(): Unit {
           LauncherBridge.logLauncher("On Surface Destroy")
-          Vars.rendering = false 
+          Vars.rendering = false
           Vars.taskQueue.offer { Vars.eglHelper.destroy() }
         }
       }
   )
 
-  LauncherBridge.logOS("Hello Oxygen Launcher Os")
+  OSLog.info("Hello Oxygen Launcher Os")
   LauncherBridge.logLauncher("Hello Oxygen Launcher File")
   System.setProperty("org.lwjgl.util.Debug", "true")
   System.setProperty("org.lwjgl.util.DebugLoader", "true")
@@ -99,7 +114,7 @@ fun main() {
       frameCount = 0
       lastTime = currentTime
     }
-  } 
+  }
   Vars.taskQueue.poll()?.run()
 }
 
