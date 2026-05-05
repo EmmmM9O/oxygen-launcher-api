@@ -89,6 +89,10 @@ fun main() {
 
   OSLog.info("Hello Oxygen Launcher Os")
   LauncherBridge.logLauncher("Hello Oxygen Launcher File")
+  LauncherBridge.logLauncher(System.getProperty("os.arch"))
+  LauncherBridge.logLauncher(System.getProperty("java.vendor"))
+  LauncherBridge.logLauncher(System.getProperty("java.vm.vendor"))
+  LauncherBridge.logLauncher(System.getProperty("java.runtime.name"))
   System.setProperty("org.lwjgl.util.Debug", "true")
   System.setProperty("org.lwjgl.util.DebugLoader", "true")
   System.setProperty("org.lwjgl.util.DebugFunctions", "true")
