@@ -20,6 +20,26 @@ object LauncherBridge {
 
   external fun getClipboardText(): String
 
+  external fun showFileChooser(
+      open: Boolean,
+      title: String,
+      cons: StrCons,
+      error: StrCons2,
+      extensions: Array<String>,
+  )
+
+  external fun haveExternalPermission(): Boolean
+
+  external fun getExternalPermission(code: Int): Unit
+
+  external fun hide(): Unit
+
+  external fun beginForceLandscape(): Unit
+
+  external fun endForceLandscape(): Unit
+
+  external fun postCacheFile(uri: String): Unit
+
   external fun setCallback(callback: LauncherBridgeCallback): Unit
 
   external fun createsurface(): Unit
@@ -61,6 +81,10 @@ fun interface VoidFunc : () -> Unit {
 
 fun interface StrCons : (String) -> Unit {
   override fun invoke(text: String): Unit
+}
+
+fun interface StrCons2 : (String, String) -> Unit {
+  override fun invoke(str1: String, str2: String): Unit
 }
 
 object OSLog {

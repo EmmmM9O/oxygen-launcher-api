@@ -13,13 +13,14 @@ val lwjglVersion = "3.4.1"
 
 dependencies {
   implementation(project(":api"))
+  implementation(project(":lwjgl-natives"))
   implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
   implementation("org.lwjgl", "lwjgl-opengles")
   implementation("org.lwjgl", "lwjgl-egl")
 }
 
-tasks.register<Jar>("deploy") {
-  archiveClassifier.set("deploy")
+tasks.register<Jar>("dist") {
+  archiveClassifier.set("dist")
 
   from(sourceSets.main.get().output)
 

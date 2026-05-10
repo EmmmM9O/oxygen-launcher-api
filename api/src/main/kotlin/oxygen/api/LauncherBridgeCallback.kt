@@ -9,7 +9,15 @@ interface LauncherBridgeCallback {
 
   fun onDestroy(): Unit {}
 
+  fun onExit(): Unit {}
+
   fun onConfigurationChanged(config: String): Unit {}
+
+  fun onRequestPermissionsResult(
+      requestCode: Int,
+      permissions: Array<String>,
+      grantResults: IntArray,
+  ) {}
 
   fun onActivityResult(requestCode: Int, resultCode: Int, data: String): Unit {}
 
