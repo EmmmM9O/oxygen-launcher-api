@@ -142,7 +142,6 @@ class BridgeKeyEvent(
     const val KEYCODE_Y = 53
     const val KEYCODE_Z = 54
 
-    /** 按键码名称映射 */
     private val KEYCODE_NAMES =
         mapOf(
             KEYCODE_UNKNOWN to "KEYCODE_UNKNOWN",
@@ -221,7 +220,6 @@ class BridgeKeyEvent(
 
     private const val INT_DATA_SIZE = 11
 
-    /** 从 IntArray 构建 BridgeKeyEvent */
     fun fromArray(intData: IntArray, characters: String = ""): BridgeKeyEvent {
       var pos = 0
 
@@ -253,7 +251,6 @@ class BridgeKeyEvent(
       )
     }
 
-    /** 转为 IntArray（用于传给 Native 或序列化） */
     fun toArray(event: BridgeKeyEvent): IntArray {
       return intArrayOf(
           event.action,

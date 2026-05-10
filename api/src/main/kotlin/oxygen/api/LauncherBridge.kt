@@ -42,6 +42,20 @@ object LauncherBridge {
 
   external fun setCallback(callback: LauncherBridgeCallback): Unit
 
+  external fun setAllSettings(json: String): Unit
+
+  external fun getAllSettings(): String
+
+  external fun setGameSettings(json: String): Unit
+
+  external fun getGameSettings(): String
+
+  external fun setGameDefault(json: String)
+
+  external fun startLoop()
+
+  external fun endLoop()
+
   external fun createsurface(): Unit
 
   external fun isFinishing(): Boolean

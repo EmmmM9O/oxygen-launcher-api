@@ -46,7 +46,6 @@ class OxygenGraphics(val app: OxygenApplication) : Graphics() {
 
   init {}
 
-
   fun initEGL(surface: Long) {
     if (eglDisplay == EGL10.EGL_NO_DISPLAY || eglContext == EGL10.EGL_NO_CONTEXT) {
       fullInit(surface)
@@ -100,6 +99,7 @@ class OxygenGraphics(val app: OxygenApplication) : Graphics() {
     }
     Log.debug("EGL MakeCurrent success")
   }
+
   fun fullInit(surface: Long) {
     eglDisplay = EGL10.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
     if (eglDisplay == EGL10.EGL_NO_DISPLAY) {
@@ -266,9 +266,9 @@ class OxygenGraphics(val app: OxygenApplication) : Graphics() {
         EGL10.EGL_NO_CONTEXT,
     )
     EGL10.eglDestroySurface(eglDisplay, eglSurface)
-    //setPreserveEGLContextOnPause
-    //EGL10.eglDestroyContext(eglDisplay, eglContext)
-    //EGL10.eglTerminate(eglDisplay)
+    // setPreserveEGLContextOnPause
+    // EGL10.eglDestroyContext(eglDisplay, eglContext)
+    // EGL10.eglTerminate(eglDisplay)
   }
 
   fun resume() {

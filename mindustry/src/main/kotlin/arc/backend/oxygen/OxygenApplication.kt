@@ -11,6 +11,8 @@ import arc.scene.ui.*
 import arc.struct.*
 import arc.util.*
 import arc.util.Log.*
+import arc.util.serialization.Json
+import arc.util.serialization.JsonWriter
 import java.io.*
 import java.net.*
 import java.nio.*
@@ -43,7 +45,7 @@ class DebugStream : Supplier<PrintStream> {
 
 open class OxygenApplication(
     listener: ApplicationListener,
-    val config: OxygenConfig,
+    configDef: OxygenConfig,
 ) : Application, LauncherBridgeCallback {
   private val listeners = Seq<ApplicationListener>()
   private val runnables = TaskQueue()
@@ -57,10 +59,15 @@ open class OxygenApplication(
   var setup = false
   var window = 0L
   var context = 0L
+  val config: OxygenConfig
+  val json = Json(JsonWriter.OutputType.json).apply{setUsePrototypes(false)}
 
   init {
     Log.logger = OxygenApplicationLogger()
     LauncherBridge.setCallback(this)
+    LauncherBridge.setGameDefault(json.toJson(configDef))
+    config = json.fromJson(OxygenConfig::class.java, LauncherBridge.getGameSettings())
+    Log.debug("Config: ${LauncherBridge.getGameSettings()}\n---\n${json.toJson(config)}")
     this.listeners.add(listener)
 
     mainThread_ = Thread.currentThread()
@@ -81,7 +88,7 @@ open class OxygenApplication(
     Core.audio = Audio(!config.disableAudio)
 
     try {
-      loop()
+      loopRun()
       listen(ApplicationListener::exit)
     } finally {
       try {
@@ -127,7 +134,7 @@ open class OxygenApplication(
     }
   }
 
-  private fun loop() {
+  private fun loopRun() {
     listen(ApplicationListener::init)
     while (running) {
       graphics.update()
@@ -250,8 +257,11 @@ open class OxygenApplication(
       floatData: FloatArray,
   ): Boolean = input.handleGenericMotion(BridgeGenericMotionEvent.fromArrays(intData, floatData))
 
-  override fun handleKey(keyCode: Int, /*KeyEvent*/ intData: IntArray): Boolean =
-      input.handleKey(keyCode, BridgeKeyEvent.fromArray(intData))
+  override fun handleKey(
+      keyCode: Int, /*KeyEvent*/
+      intData: IntArray,
+      characters: String,
+  ): Boolean = input.handleKey(keyCode, BridgeKeyEvent.fromArray(intData, characters))
 
   override fun onExit() {
     exit()
@@ -259,19 +269,15 @@ open class OxygenApplication(
 }
 
 open class OxygenConfig {
-  var r = 8
-  var g = 8
-  var b = 8
-  var a = 0
-  var depth = 16
-  var stencil = 0
-  var samples = 0
-
-  var disableAudio = false
-  /** Requested OpenGL versions, in order of priority. */
-  var glVersions: Array<IntArray> = arrayOf(intArrayOf(2, 0))
-  /** If false, a GL30 context is not created, even if it is supported. */
-  var useGL30 = true
+  @JvmField var r: Int = 8
+  @JvmField var g: Int = 8
+  @JvmField var b: Int = 8
+  @JvmField var a: Int = 0
+  @JvmField var depth: Int = 16
+  @JvmField var stencil: Int = 0
+  @JvmField var samples: Int = 0
+  @JvmField var disableAudio: Boolean = false
+  @JvmField var useGL30: Boolean = true
 }
 
 open class OxygenApplicationLogger : LogHandler {

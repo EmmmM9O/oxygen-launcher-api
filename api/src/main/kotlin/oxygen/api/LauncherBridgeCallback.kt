@@ -1,6 +1,8 @@
 package oxygen.api
 
 interface LauncherBridgeCallback {
+  fun loop(): Unit {}
+
   fun onWindowFocusChanged(hasFocus: Boolean): Unit {}
 
   fun onPause(): Unit {}
@@ -34,5 +36,5 @@ interface LauncherBridgeCallback {
       floatData: FloatArray,
   ): Boolean = true
 
-  fun handleKey(keyCode: Int, /*KeyEvent*/ intData: IntArray): Boolean = true
+  fun handleKey(keyCode: Int, /*KeyEvent*/ intData: IntArray, characters: String): Boolean = true
 }

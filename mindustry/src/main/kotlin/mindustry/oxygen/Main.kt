@@ -21,7 +21,7 @@ fun main() {
   Log.level = Log.LogLevel.debug
   try {
     val lau = OxygenLauncher()
-    object : OxygenApplication(lau as ApplicationListener, object : OxygenConfig() {}) {
+    object : OxygenApplication(lau as ApplicationListener, OxygenConfig()) {
       override fun onRequestPermissionsResult(
           requestCode: Int,
           permissions: Array<String>,
@@ -78,9 +78,10 @@ class OxygenLauncher : ClientLauncher() {
             StrCons {
               val file = Fi(it)
               cons.get(file)
-              Time.run(20f){
-                if(file.exists()){
-                  if(!open) LauncherBridge.postCacheFile(file.absolutePath())
+              // I hope…
+              Time.run(20f) {
+                if (file.exists()) {
+                  if (!open) LauncherBridge.postCacheFile(file.absolutePath())
                   file.delete()
                 }
               }
