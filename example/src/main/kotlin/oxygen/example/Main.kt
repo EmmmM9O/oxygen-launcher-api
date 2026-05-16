@@ -98,9 +98,11 @@ fun main() {
   System.setProperty("org.lwjgl.util.DebugFunctions", "true")
   Configuration.DEBUG.set(true)
   Configuration.DEBUG_STREAM.set("oxygen.example.DebugStream")
-  Configuration.EGL_LIBRARY_NAME.set("libEGL.so")
-  Configuration.OPENGLES_LIBRARY_NAME.set("libGLESv2.so")
+  Configuration.EGL_LIBRARY_NAME.set("linux/arm64/libEGL_angle.so")
+  Configuration.OPENGLES_LIBRARY_NAME.set("linux/arm64/libGLESv2_angle.so")
   Configuration.DISABLE_HASH_CHECKS.set(true)
+  Configuration.OPENGLES_EXPLICIT_INIT.set(true)
+  GLES.create()
   var frameCount = 0
   var lastTime = System.currentTimeMillis()
   LauncherBridge.logLauncher("Call createsurface()")

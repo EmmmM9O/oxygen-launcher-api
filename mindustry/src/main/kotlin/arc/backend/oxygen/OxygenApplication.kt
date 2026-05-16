@@ -60,7 +60,7 @@ open class OxygenApplication(
   var window = 0L
   var context = 0L
   val config: OxygenConfig
-  val json = Json(JsonWriter.OutputType.json).apply{setUsePrototypes(false)}
+  val json = Json(JsonWriter.OutputType.json).apply { setUsePrototypes(false) }
 
   init {
     Log.logger = OxygenApplicationLogger()
@@ -106,22 +106,35 @@ open class OxygenApplication(
     }
   }
 
-  private fun init() {
-    System.setProperty("org.lwjgl.util.Debug", "true")
-    System.setProperty("org.lwjgl.util.DebugLoader", "true")
-    System.setProperty("org.lwjgl.util.DebugFunctions", "true")
-    Configuration.DEBUG.set(true)
-    Configuration.DEBUG_STREAM.set("arc.backend.oxygen.DebugStream")
-    Configuration.EGL_LIBRARY_NAME.set("libEGL.so")
-    Configuration.OPENGLES_LIBRARY_NAME.set("libGLESv2.so")
-    Configuration.DISABLE_HASH_CHECKS.set(true)
+  fun getArch(): String =
+      when {
+        OS.isARM && OS.is64Bit -> "linux/arm64"
+        OS.isARM && !OS.is64Bit -> "linux/arm32"
+	else -> ""
+      }
 
+  fun getAngleLib(lib: String): String =
+      if (config.angle) "${getArch()}/lib${lib}_angle.so" else "lib$lib.so"
+
+  private fun init() {
     OS.isAndroid = false
     OS.isWindows = false
     OS.isLinux = true
     OS.isMac = false
     OS.is64Bit =
         OS.propNoNull("os.arch").contains("64") || OS.propNoNull("os.arch").startsWith("armv8")
+    if (config.debug) {
+      System.setProperty("org.lwjgl.util.Debug", "true")
+      System.setProperty("org.lwjgl.util.DebugLoader", "true")
+      System.setProperty("org.lwjgl.util.DebugFunctions", "true")
+      Configuration.DEBUG.set(true)
+      Configuration.DEBUG_STREAM.set("arc.backend.oxygen.DebugStream")
+    }
+    Configuration.EGL_LIBRARY_NAME.set(getAngleLib("EGL"))
+    Configuration.OPENGLES_LIBRARY_NAME.set(getAngleLib("GLESv2"))
+    Configuration.DISABLE_HASH_CHECKS.set(true)
+    Configuration.OPENGLES_EXPLICIT_INIT.set(true)
+    GLES.create()
 
     ArcNativesLoader.load()
   }
@@ -132,6 +145,7 @@ open class OxygenApplication(
     while (!setup) {
       runnables.run()
     }
+    LauncherBridge.setupInput()
   }
 
   private fun loopRun() {
@@ -278,6 +292,8 @@ open class OxygenConfig {
   @JvmField var samples: Int = 0
   @JvmField var disableAudio: Boolean = false
   @JvmField var useGL30: Boolean = true
+  @JvmField var debug: Boolean = true
+  @JvmField var angle: Boolean = true
 }
 
 open class OxygenApplicationLogger : LogHandler {

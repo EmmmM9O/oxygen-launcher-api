@@ -56,7 +56,9 @@ object LauncherBridge {
 
   external fun endLoop()
 
-  external fun createsurface(): Unit
+  external fun setupInput()
+
+  external fun createsurface(create: Boolean = true): Unit
 
   external fun isFinishing(): Boolean
 

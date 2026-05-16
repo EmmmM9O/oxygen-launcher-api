@@ -16,6 +16,7 @@ dependencies {
   implementation(project(":lwjgl-natives"))
   implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
   implementation("org.lwjgl", "lwjgl-opengles")
+  // implementation("org.lwjgl", "lwjgl-sdl")
   implementation("org.lwjgl", "lwjgl-egl")
 }
 

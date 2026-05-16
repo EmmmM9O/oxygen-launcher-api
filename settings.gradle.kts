@@ -1,8 +1,3 @@
 rootProject.name = "oxygen-launcher"
 
-include(
-    "api",
-    "lwjgl-natives",
-    "example",
-    "mindustry"
-)
+include("api", "lwjgl-natives", "example", "mindustry", "launcher-mod")

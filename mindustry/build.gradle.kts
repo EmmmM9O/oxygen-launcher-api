@@ -37,22 +37,80 @@ tasks.register<Jar>("trimJar") {
   destinationDirectory.set(layout.buildDirectory.dir("libs"))
 }
 
+val extractedDir = layout.buildDirectory.dir("extracted")
+
+tasks.register<Copy>("copyNatives") {
+  from(
+      arrayOf("libs/natives-android.jar", "libs/natives-freetype-android.jar").map {
+        zipTree(file(it))
+      }
+  ) {
+    include("**/*.so")
+  }
+  into(extractedDir)
+
+  eachFile {
+    val path = this.path
+    val regex = """^(.*)/(lib.+?)\.so$""".toRegex()
+    val matchResult = regex.find(path)
+
+    if (matchResult != null) {
+      val abiPath = matchResult.groupValues[1]
+      val libName = matchResult.groupValues[2]
+
+      val archSuffix =
+          when {
+            abiPath.contains("arm64", ignoreCase = true) -> "arm64"
+            abiPath.contains("arm", ignoreCase = true) -> "arm"
+            abiPath.contains("x86_64", ignoreCase = true) -> "64"
+            abiPath.contains("x86", ignoreCase = true) -> ""
+            else -> "" 
+          }
+      this.path = "${libName}${archSuffix}.so"
+    }
+  }
+}
+
+tasks.register<Jar>("trimNatives") {
+  archiveFileName.set("native-trimmed.jar")
+  destinationDirectory.set(layout.buildDirectory.dir("libs"))
+
+  from(extractedDir)
+  include("**/*.so")
+
+  dependsOn("copyNatives")
+}
+
 dependencies {
   implementation(project(":api"))
   implementation(project(":lwjgl-natives"))
   implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
   implementation("org.lwjgl", "lwjgl-opengles")
   implementation("org.lwjgl", "lwjgl-egl")
-  val localJar = file("libs/Mindustry.jar")
-  if (!localJar.exists()) {
+
+  val jar1 = file("libs/Mindustry.jar")
+  if (!jar1.exists()) {
     println("libs/Mindustry.jar not exists")
-  }else{
+  } else {
     implementation(files(tasks.named("trimJar").map { it.outputs.files.singleFile }))
   }
-  implementation(fileTree("libs") {
-    include("*.jar")
-    exclude("Mindustry.jar")
-  })
+
+  val jar2 = file("libs/natives-android.jar")
+  val jar3 = file("libs/natives-freetype-android.jar")
+  if (!jar2.exists() || !jar3.exists()) {
+    println("libs/natives-android.jar or natives-freetype-android.jar not exists")
+  } else {
+    implementation(files(tasks.named("trimNatives").map { it.outputs.files.singleFile }))
+  }
+
+  implementation(
+      fileTree("libs") {
+        include("*.jar")
+        exclude("Mindustry.jar")
+        exclude("natives-android.jar")
+        exclude("natives-freetype-android.jar")
+      }
+  )
 }
 
 tasks.register<Jar>("dist") {
