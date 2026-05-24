@@ -1,0 +1,11 @@
+{
+  "displayName": "Oxygen Launcher UI",
+  "name": "oxygenlauncher",
+  "author": "EmmmM9O(Stellarcus)",
+  "description": "The ui for oxygen launcher",
+  "version": 1.0,
+  "minGameVersion": 154,
+  "hidden": true,
+  "java": true,
+  "main": "oxygen.launcher.LauncherMain"
+}

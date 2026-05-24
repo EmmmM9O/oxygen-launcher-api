@@ -58,6 +58,10 @@ object LauncherBridge {
 
   external fun setupInput()
 
+  external fun appInfo(): String
+
+  external fun javaInfo(): String
+
   external fun createsurface(create: Boolean = true): Unit
 
   external fun isFinishing(): Boolean

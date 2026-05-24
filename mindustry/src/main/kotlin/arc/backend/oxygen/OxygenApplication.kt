@@ -67,6 +67,9 @@ open class OxygenApplication(
     LauncherBridge.setCallback(this)
     LauncherBridge.setGameDefault(json.toJson(configDef))
     config = json.fromJson(OxygenConfig::class.java, LauncherBridge.getGameSettings())
+    if (config.debug) {
+      Log.level = Log.LogLevel.debug
+    }
     Log.debug("Config: ${LauncherBridge.getGameSettings()}\n---\n${json.toJson(config)}")
     this.listeners.add(listener)
 
@@ -87,30 +90,16 @@ open class OxygenApplication(
 
     Core.audio = Audio(!config.disableAudio)
 
-    try {
-      loopRun()
-      listen(ApplicationListener::exit)
-    } finally {
-      try {
-        cleanup()
-      } catch (error: Throwable) {
-        val msg =
-            StringWriter().let {
-              PrintWriter(it).let(error::printStackTrace)
-              it.toString()
-            }
-        OSLog.error(msg)
-        LauncherBridge.logLauncher("[Mindustry Crash]:\n$msg")
-      }
-      System.exit(0)
-    }
+    loopRun()
+    listen(ApplicationListener::exit)
+    System.exit(0)
   }
 
   fun getArch(): String =
       when {
         OS.isARM && OS.is64Bit -> "linux/arm64"
         OS.isARM && !OS.is64Bit -> "linux/arm32"
-	else -> ""
+        else -> ""
       }
 
   fun getAngleLib(lib: String): String =

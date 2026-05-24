@@ -18,7 +18,18 @@ import oxygen.api.*
 import oxygen.util.*
 
 fun main() {
-  Log.level = Log.LogLevel.debug
+  val errHandler = Thread.getDefaultUncaughtExceptionHandler()
+
+  Thread.setDefaultUncaughtExceptionHandler { thread, error ->
+    Log.err(error)
+    CrashHandler.log(error)
+
+    if (errHandler != null) {
+      errHandler.uncaughtException(thread, error)
+    } else {
+      System.exit(1)
+    }
+  }
   try {
     val lau = OxygenLauncher()
     object : OxygenApplication(lau as ApplicationListener, OxygenConfig()) {

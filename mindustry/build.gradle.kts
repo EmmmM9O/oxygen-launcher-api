@@ -1,5 +1,6 @@
 plugins {
   alias(libs.plugins.kotlin.jvm)
+  id("java-library")
   id("application")
 }
 
@@ -64,7 +65,7 @@ tasks.register<Copy>("copyNatives") {
             abiPath.contains("arm", ignoreCase = true) -> "arm"
             abiPath.contains("x86_64", ignoreCase = true) -> "64"
             abiPath.contains("x86", ignoreCase = true) -> ""
-            else -> "" 
+            else -> ""
           }
       this.path = "${libName}${archSuffix}.so"
     }
@@ -82,17 +83,17 @@ tasks.register<Jar>("trimNatives") {
 }
 
 dependencies {
-  implementation(project(":api"))
+  api(project(":api"))
   implementation(project(":lwjgl-natives"))
-  implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
-  implementation("org.lwjgl", "lwjgl-opengles")
-  implementation("org.lwjgl", "lwjgl-egl")
+  api(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
+  api("org.lwjgl", "lwjgl-opengles")
+  api("org.lwjgl", "lwjgl-egl")
 
   val jar1 = file("libs/Mindustry.jar")
   if (!jar1.exists()) {
     println("libs/Mindustry.jar not exists")
   } else {
-    implementation(files(tasks.named("trimJar").map { it.outputs.files.singleFile }))
+    api(files(tasks.named("trimJar").map { it.outputs.files.singleFile }))
   }
 
   val jar2 = file("libs/natives-android.jar")
