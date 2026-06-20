@@ -13,6 +13,7 @@ import arc.util.*
 import arc.util.io.*
 import arc.util.serialization.*
 import java.io.StringReader
+import kotlin.concurrent.thread
 import mindustry.*
 import mindustry.gen.*
 import mindustry.ui.*
@@ -23,6 +24,7 @@ class LauncherUI {
   val content: Table
   var current: Int = -1
   val bSize = 48f
+  val msg = StringBuilder()
 
   init {
     floatTable = FloatingTable()
@@ -109,12 +111,72 @@ class LauncherUI {
     }
   }
 
+  fun installFabric(settings: Jval) {
+    thread {
+      msg.append("Installing Faric...\n")
+      val lau = settings.get("launcher")
+      var conf: InstallConfig? = null
+      try {
+        conf =
+            loadConfig(
+                fetchLatestVersion = true,
+                mirror = if (lau.getBool("enableMirror", true)) lau.getString("mirror") else "",
+            )
+      } catch (err: Throwable) {
+        conf = loadConfig { Core.files.classpath("fabric-dependencies.json").read() }
+      }
+      msg.append("Load Config ${conf}\n")
+      val pa = Core.settings.dataDirectory
+      conf?.let {
+        val classpath =
+            installDependencies(pa, it.clientDependencies.values.toList()) { m ->
+              msg.append("$m\n")
+            }
+        lau.put(
+            "directArgs",
+            Jval.read(
+                """[
+      "-Dhttps.protocols=TLSv1.2,TLSv1.1,TLSv1",
+      "-XX:+ShowCodeDetailsInExceptionMessages",
+      "-Dfabric.skipMcProvider=true",
+      "-Dfabric.side=client",
+      "-cp",
+      "${classpath.joinToString(":") { path -> path.replace(pa.absolutePath(), "\${HOME}")}}",
+      "net.fabricmc.loader.impl.launch.knot.KnotClient"
+      ]
+      """
+            ),
+        )
+        Core.app.post {
+          LauncherBridge.setAllSettings(settings.toString(Jval.Jformat.formatted))
+          Vars.ui.showInfoOnHidden("@mods.reloadexit") { Core.app.exit() }
+        }
+      }
+    }
+  }
+
   fun settingsF(): Table.() -> Unit = {
     table {
       val obj = Jval.read(LauncherBridge.getAllSettings())
       it.buildSettings(obj.asObject()) {
         LauncherBridge.setAllSettings(obj.toString(Jval.Jformat.formatted))
       }
+      it.table { con ->
+            con.table().width(8f).grow().left()
+            con.table { tab ->
+                  tab.table().width(8f).grow()
+                  tab.add(Core.bundle.get("oxygenl.settings.fabric", "fabric")).left()
+                  tab.table().grow().row()
+                  tab.table().height(8f).grow().row()
+                  tab.table { buttons -> buttons.button("Install") { installFabric(obj) } }.row()
+                  tab.label { msg.toString() }
+                }
+                .left()
+                .grow()
+            con.table().grow()
+          }
+          .uniformX()
+          .row()
     }
   }
 

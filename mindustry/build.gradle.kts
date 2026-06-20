@@ -89,13 +89,16 @@ dependencies {
   api("org.lwjgl", "lwjgl-opengles")
   api("org.lwjgl", "lwjgl-egl")
 
-  val jar1 = file("libs/Mindustry.jar")
-  if (!jar1.exists()) {
-    println("libs/Mindustry.jar not exists")
+  if (!project.hasProperty("addon")) {
+    val jar1 = file("libs/Mindustry.jar")
+    if (!jar1.exists()) {
+      println("libs/Mindustry.jar not exists")
+    } else {
+      api(files(tasks.named("trimJar").map { it.outputs.files.singleFile }))
+    }
   } else {
-    api(files(tasks.named("trimJar").map { it.outputs.files.singleFile }))
+    compileOnly(fileTree("libs"))
   }
-
   val jar2 = file("libs/natives-android.jar")
   val jar3 = file("libs/natives-freetype-android.jar")
   if (!jar2.exists() || !jar3.exists()) {
@@ -115,8 +118,11 @@ dependencies {
 }
 
 tasks.register<Jar>("dist") {
-  archiveClassifier.set("dist")
-
+  if (!project.hasProperty("addon")) {
+    archiveClassifier.set("dist")
+  } else {
+    archiveClassifier.set("addon")
+  }
   from(sourceSets.main.get().output)
 
   dependsOn(configurations.runtimeClasspath)
