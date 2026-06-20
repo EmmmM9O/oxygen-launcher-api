@@ -282,7 +282,7 @@ open class OxygenConfig {
   @JvmField var disableAudio: Boolean = false
   @JvmField var useGL30: Boolean = true
   @JvmField var debug: Boolean = true
-  @JvmField var angle: Boolean = true
+  @JvmField var angle: Boolean = false
 }
 
 open class OxygenApplicationLogger : LogHandler {
